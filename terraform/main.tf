@@ -60,8 +60,7 @@ module "project-services" {
   activate_apis = [
     "cloudfunctions.googleapis.com",
     "cloudbuild.googleapis.com",
-    "cloudscheduler.googleapis.com",
-    "cloudscheduler.googleapis.com",
+    "cloudscheduler.googleapis.com"
   ]
   disable_dependent_services = true
   disable_services_on_destroy = false
