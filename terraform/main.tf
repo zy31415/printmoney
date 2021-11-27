@@ -1,26 +1,14 @@
 locals {
-  project_id = "print-money-1543"
   timestamp = formatdate("YYMMDDhhmmss", timestamp())
   root_dir = abspath("../src/")
   function_entry_point = "main"
 }
 
 
-variable "billing_account" {
-    type = string
-}
-
-
-resource "google_project" "print-money" {
-  name       = "Print Money"
-  project_id = local.project_id
+module "project" {
+  source = "./modules/project"
+  project_id = var.project_id
   billing_account = var.billing_account
-}
-
-provider "google" {
-  project = local.project_id
-  region  = "us-central1"
-  zone    = "us-central1-c"
 }
 
 
@@ -33,7 +21,7 @@ data "archive_file" "source" {
 
 # Create bucket that will host the source code
 resource "google_storage_bucket" "src" {
-  name = "${local.project_id}-function"
+  name = "${var.project_id}-function"
   location = "US"
   storage_class = "standard"
 
@@ -55,7 +43,7 @@ module "project-services" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "10.1.1"
 
-  project_id = local.project_id
+  project_id = var.project_id
 
   activate_apis = [
     "cloudfunctions.googleapis.com",
@@ -68,14 +56,13 @@ module "project-services" {
 
 
 resource "google_storage_bucket" "output" {
-    # project = local.project_id
-    name = "${local.project_id}-print-money"
+    name = "${var.project_id}-print-money"
     location = "US"
     storage_class = "standard"
 }
 
 resource "google_pubsub_topic" "money_trigger" {
-    name = "${local.project_id}-money_trigger"
+    name = "${var.project_id}-money_trigger"
 }
 
 # Create Cloud Function
